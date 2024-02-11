@@ -1,0 +1,24 @@
+FROM rust:latest
+
+RUN apt-get update && apt-get install -y pkg-config libssl-dev cmake zlib1g-dev
+
+# Set the CARGO_HOME environment variable (optional, as it should default to /usr/local/cargo)
+ENV CARGO_HOME=/usr/local/cargo
+
+RUN cargo install cargo-tarpaulin
+
+# Set the working directory in the container
+WORKDIR /usr/src/myapp
+
+# Copying only the Cargo.toml and Cargo.lock to cache dependencies
+COPY Cargo.toml Cargo.lock ./
+
+# Create a dummy main.rs to allow cargo to download and compile dependencies
+RUN mkdir src && \
+    echo "fn main() {}" > src/main.rs && \
+    cargo fetch && \
+    rm -rf src/
+
+# Use ENTRYPOINT to specify the default executable and CMD for the default arguments
+ENTRYPOINT ["cargo", "tarpaulin"]
+CMD ["--out", "Html", "--ignore-tests", "--output-dir", "/usr/src/coverage"]

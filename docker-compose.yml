@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  hello_world_server:
+    build: .
+    ports:
+      - "3030:3030"
+    environment:
+      - RUST_LOG=debug
+    volumes:
+      - .:/usr/src/myapp
+      - cargoRegistry:/usr/local/cargo/registry
+      - cargoGit:/usr/local/cargo/git
+
+  coverage-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.coverage
+    volumes:
+      - ./src:/usr/src/myapp/src
+      - ./tests:/usr/src/myapp/tests
+      - ./coverage:/usr/src/coverage
+      - targetVolume:/usr/src/myapp/target
+      - cargoHomeVolume:/usr/local/cargo
+    command:
+      - --out
+      - Html
+      - --ignore-tests
+      - --output-dir
+      - /usr/src/coverage
+      - --skip-clean
+    privileged: true
+
+volumes:
+  targetVolume:
+  cargoHomeVolume:
+  cargoRegistry:
+  cargoGit:

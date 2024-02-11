@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "start": "cargo watch -x run",
+    "test": "cargo watch -x test",
+    "test:coverage": "docker compose run coverage-test"
+  }
+}
